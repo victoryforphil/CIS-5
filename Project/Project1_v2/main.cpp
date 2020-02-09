@@ -5,7 +5,8 @@
 #include <vector>
 #include <time.h>
 
-
+// Simple to define to make life easy
+#define hand_ref short (&hand)[6]
 
 // Game Stages
 // 1. Players are dealt initial 2 pairs of cards
@@ -15,11 +16,12 @@
 // 5. Win State
 // 6. Clear Board, Add score
 
-void displayHand(std::string, short (&hand)[6]);
-void dealCard(short (&hand)[6]); // Deal a card randomly to a players hand via ref
+void displayHand(std::string, hand_ref);
+void dealCard(hand_ref); // Deal a card randomly to a players hand via ref
 void chooseAction(bool &); // Display whether the player wants to hit or stay, modify isStay var by refrence
-short checkWin(short (&hand)[6]); // Check for win state (0 = No Result, 1 = Blackjack, 2 = Bust)
-void aiChoose(bool&, short (&hand)[6]); // AI Function to choose whether to hit or stay (true = hit), via ref
+short checkWin(hand_ref); // Check for win state (0 = No Result, 1 = Blackjack, 2 = Bust)
+void aiChoose(bool&, hand_ref); // AI Function to choose whether to hit or stay (true = hit), via ref
+
 
 int main(int argc, char** argv) {
     // Not a var declaration, so I hope this is okay.
@@ -141,8 +143,13 @@ int main(int argc, char** argv) {
             }
             
         }
-    }    
+    }
+    float avg = (float) getScore(players.at(winIdx).hand) / 6;
+    
+    
+    
     std::cout << "Winner: " << players.at(winIdx).name << " with score: " << getScore(players.at(winIdx).hand);
+    std::cout << "Average Card Value: " << std::fixed << std::setprecision(2) << avg << std::endl;
     return 0;
 }
 
@@ -162,6 +169,10 @@ void dealCard(short (&hand)[6]) {
     short rndMax = 11;
     srand(time(NULL));
     short toDeal = std::rand() % rndMax + rndMin;
+
+
+    //Find first empty slot in player's hand (0 = empty)
+    // Then assign the card to that slot of the hand array
     bool dealt = false;
     for (short i = 0; i<sizeof (hand) / sizeof (short); i++) {
         if (hand[i] == 0 && !dealt) {
@@ -172,6 +183,7 @@ void dealCard(short (&hand)[6]) {
     }
 }
 
+//Have the AI choose to stay or hit (via ref)
 void aiChoose(bool &stay, short (&hand)[6]){
     short total = 0;
     for (int i = 0; i<sizeof (hand) / sizeof (short); i++) {
